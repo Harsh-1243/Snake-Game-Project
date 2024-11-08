@@ -8,6 +8,14 @@ const CurrentScore = document.querySelector(".current-score");
 
 const HiScore = document.querySelector(".high-score");
 
+const GameMenu = document.querySelector(".game-menu");
+
+const PlayBtn = document.querySelector(".play-btn");
+
+let IsBtnPlay = true;
+
+let FunCall;
+
 let SnakeDir = {
 
     Xcor: 0,
@@ -34,7 +42,7 @@ let Snake_Segments = [
 
 ];
 
-let Score = 0; 
+let Score = 0;
 
 let HighScore = 0;
 
@@ -46,9 +54,9 @@ function IsCollideToSegments() {
 
     //checking if snake's head crashing to its own segments or not
 
-    for(let i = 1; i < Snake_Segments.length; i++){
+    for (let i = 1; i < Snake_Segments.length; i++) {
 
-        if(Snake_Segments[i].Xcor === Snake_Segments[0].Xcor && Snake_Segments[i].Ycor === Snake_Segments[0].Ycor){
+        if (Snake_Segments[i].Xcor === Snake_Segments[0].Xcor && Snake_Segments[i].Ycor === Snake_Segments[0].Ycor) {
 
             return true;
 
@@ -58,7 +66,7 @@ function IsCollideToSegments() {
 
     //checking if snake's head crashing to the wall or not
 
-    if(Snake_Segments[0].Xcor > 13 || Snake_Segments[0].Xcor <= 0 || Snake_Segments[0].Ycor > 17 || Snake_Segments[0].Ycor <= 0){
+    if (Snake_Segments[0].Xcor > 13 || Snake_Segments[0].Xcor <= 0 || Snake_Segments[0].Ycor > 17 || Snake_Segments[0].Ycor <= 0) {
 
         console.log("CRASHED A WALL !");
 
@@ -76,8 +84,6 @@ function GenRanFoodCor() {
 
     let Yran = Math.round(Math.random() * 16);
 
-    console.log(Xran,Yran);
-
     return { Xcor: ++Xran, Ycor: ++Yran };
 
 }
@@ -92,21 +98,33 @@ function GameEngine() {
         FoodDir = { Xcor: 5, Ycor: 9 };
         SnakeDir = { Xcor: 0, Ycor: 0 };
         Snake_Segments = {
-            Xcor:10,
-            Ycor:8
+            Xcor: 10,
+            Ycor: 8
         }
-        clearInterval(FunCall);
-        
+
+        Game_Board.style.display = "none";
+
+        GameMenu.style.top = "50px";
+
+        IsBtnPlay = false;
+
+        clearInterval(ControlInterval(false));
+
+        PlayBtn.innerHTML = "PLAY AGAIN";
+
         if (localStorage.getItem("High_Score") < Score) {
 
             HighScore = Score;
 
-            localStorage.setItem("High_Score",JSON.stringify(HighScore));
-            
+            localStorage.setItem("High_Score", JSON.stringify(HighScore));
+
         }
 
+
+        return;
+
     }
-  
+
 
     //if snake eats the food then...
 
@@ -119,12 +137,12 @@ function GameEngine() {
             Xcor: Snake_Segments[0].Xcor + SnakeDir.Ycor,
             Ycor: Snake_Segments[0].Ycor + SnakeDir.Xcor
 
-           
+
         })
 
         Score++;
         CurrentScore.innerHTML = Score;
-       
+
     }
 
 
@@ -148,7 +166,7 @@ function GameEngine() {
 
     //making game board empty before displaying food and snake segments
     Game_Board.innerHTML = "";
-    
+
 
     //displaying all snake segments on game board
     Snake_Segments.forEach((val, idx) => {
@@ -175,7 +193,7 @@ function GameEngine() {
     });
 
     //displaying the food board
-    
+
     let FoodEle = document.createElement("div");
     FoodEle.style.gridRowStart = FoodDir.Xcor;
     FoodEle.style.gridColumnStart = FoodDir.Ycor;
@@ -219,13 +237,40 @@ document.addEventListener("keydown", (key) => {
 
 });
 
+
+PlayBtn.addEventListener("click", () => {
+
+
+    if (IsBtnPlay) {
+
+
+        GameMenu.style.top = "-550px";
+
+        setTimeout(() => {
+
+            Game_Board.style.display = "grid";
+
+        }, 1000);
+
+
+        ControlInterval(true);
+
+    }
+
+    else{
+
+        location.reload();
+
+    }
+})
+
 //setting high score in game
 
-if(HighScore === null){
+if (HighScore === null) {
 
     HighScore = 0;
 
-    localStorage.setItem("High_Score",JSON.stringify(HighScore));
+    localStorage.setItem("High_Score", JSON.stringify(HighScore));
 
 
 }
@@ -234,4 +279,22 @@ HiScore.innerHTML = localStorage.getItem("High_Score");
 
 //setting time interval for calling the GameEngine Function according to the mentioned time
 
-let FunCall = setInterval(GameEngine, 200); 
+function ControlInterval(response) {
+
+    if (response) {
+
+        clearInterval(FunCall)
+        FunCall = setInterval(GameEngine, 200);
+
+
+    }
+    else {
+
+        clearInterval(FunCall);
+
+    }
+
+}
+
+
+PlayBtn.innerHTML = "PLAY"
